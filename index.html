@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Encuesta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .question {
+            display: none;
+            margin-bottom: 20px;
+        }
+        .question.active {
+            display: block;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="section-title">Características Básicas</h1>
+        <div id="questions">
+            <!-- Características Básicas -->
+            <div class="question active">
+                <label>¿Cuántos años tienes? ¿Alguna vez te han dicho que no aparentas tu edad?</label>
+                <input type="text" id="q1" />
+            </div>
+            <div class="question">
+                <label>¿Cómo te identificas? (hombre, mujer, no binario, otro) ¡Expresa tu identidad con orgullo!</label>
+                <input type="text" id="q2" />
+            </div>
+            <div class="question">
+                <label>¿Cómo describirías tu apariencia física? (Altura, color de cabello, ojos, estilo de vestir, etc.) ¿Tienes un estilo único que te gusta lucir?</label>
+                <input type="text" id="q3" />
+            </div>
+            <div class="question">
+                <label>¿Cuáles son tus principales rasgos de personalidad? (Ej. alegre, tímido, aventurero, analítico, etc.) Si tu personalidad fuera un animal, ¿cuál sería y por qué?</label>
+                <input type="text" id="q4" />
+            </div>
+
+            <!-- Trasfondo -->
+            <div class="question">
+                <label>¿Cuál es tu historia de vida? (Breve biografía) Si tu vida fuera un libro, ¿cómo se titularía?</label>
+                <input type="text" id="q5" />
+            </div>
+            <div class="question">
+                <label>¿A qué te dedicas actualmente? ¿Es algo que siempre quisiste hacer o fue una sorpresa en tu camino?</label>
+                <input type="text" id="q6" />
+            </div>
+            <div class="question">
+                <label>¿Qué te gusta hacer en tu tiempo libre? ¿Tienes algún hobby o pasión secreta?</label>
+                <input type="text" id="q7" />
+            </div>
+
+            <!-- Motivaciones y Metas -->
+            <div class="question">
+                <label>¿Cuáles son tus principales objetivos o metas? ¿Hay algún sueño loco que quisieras cumplir?</label>
+                <input type="text" id="q8" />
+            </div>
+            <div class="question">
+                <label>¿Qué te motiva o impulsa a actuar? ¿Hay algún mantra o frase que te inspire?</label>
+                <input type="text" id="q9" />
+            </div>
+
+            <!-- Relaciones -->
+            <div class="question">
+                <label>Familia y Amigos: ¿Tienes familia o amigos cercanos? ¿Quiénes son las personas más importantes en tu vida?</label>
+                <input type="text" id="q10" />
+            </div>
+            <div class="question">
+                <label>Relaciones Importantes: ¿Tienes alguna relación significativa? (ej. mentor, rival, amor) ¿Cómo han influido estas relaciones en tu vida?</label>
+                <input type="text" id="q11" />
+            </div>
+
+            <!-- Detalles Adicionales -->
+            <div class="question">
+                <label>¿Tienes alguna habilidad especial o talento? ¿Algo que te hace destacar entre los demás?</label>
+                <input type="text" id="q12" />
+            </div>
+            <div class="question">
+                <label>¿Cuáles son tus debilidades o puntos vulnerables? Todos tenemos alguna kryptonita, ¿cuál es la tuya?</label>
+                <input type="text" id="q13" />
+            </div>
+        </div>
+        <button id="next-button" disabled>Siguiente</button>
+    </div>
+
+    <script>
+        let currentQuestionIndex = 0;
+        const questions = document.querySelectorAll('.question');
+        const nextButton = document.getElementById('next-button');
+        const sectionTitle = document.getElementById('section-title');
+
+        const sections = [
+            { title: "Características Básicas", questionCount: 4 },
+            { title: "Trasfondo", questionCount: 3 },
+            { title: "Motivaciones y Metas", questionCount: 2 },
+            { title: "Relaciones", questionCount: 2 },
+            { title: "Detalles Adicionales", questionCount: 2 }
+        ];
+
+        function updateSectionTitle() {
+            let cumulativeCount = 0;
+            for (const section of sections) {
+                cumulativeCount += section.questionCount;
+                if (currentQuestionIndex < cumulativeCount) {
+                    sectionTitle.textContent = section.title;
+                    break;
+                }
+            }
+        }
+
+        function saveResponses() {
+            const responses = [];
+            for (let i = 0; i < questions.length; i++) {
+                const question = questions[i].querySelector('label').textContent;
+                const answer = questions[i].querySelector('input').value;
+                responses.push({ question, answer });
+            }
+            localStorage.setItem('formResponses', JSON.stringify(responses));
+        }
+
+        function downloadWord() {
+            const responses = JSON.parse(localStorage.getItem('formResponses'));
+            let docContent = 'Formulario de Encuesta\n\n';
+            responses.forEach(response
+
+ => {
+                docContent += `${response.question}\n${response.answer}\n\n`;
+            });
+
+            const blob = new Blob([docContent], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'respuestas.doc';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function checkInput() {
+            const input = questions[currentQuestionIndex].querySelector('input');
+            if (input.value.trim() !== "") {
+                nextButton.disabled = false;
+            } else {
+                nextButton.disabled = true;
+            }
+        }
+
+        nextButton.addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                questions[currentQuestionIndex].classList.remove('active');
+                currentQuestionIndex++;
+                questions[currentQuestionIndex].classList.add('active');
+                updateSectionTitle();
+                checkInput();
+                const input = questions[currentQuestionIndex].querySelector('input');
+                input.addEventListener('input', checkInput);
+
+                if (currentQuestionIndex === questions.length - 1) {
+                    nextButton.textContent = "Enviar";
+                }
+            } else {
+                saveResponses();
+                downloadWord();
+                window.close();
+            }
+        });
+
+        updateSectionTitle();
+        checkInput();
+        const input = questions[currentQuestionIndex].querySelector('input');
+        input.addEventListener('input', checkInput);
+    </script>
+</body>
+</html>
